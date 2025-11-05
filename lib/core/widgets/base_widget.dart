@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'tracking_mixin.dart';
 
 abstract class BaseStatefulWidget extends StatefulWidget {
   const BaseStatefulWidget({super.key});
 }
 
 abstract class BaseState<T extends BaseStatefulWidget> extends State<T>
-    with WidgetsBindingObserver, AutomaticKeepAliveClientMixin<T> {
+    with
+        WidgetsBindingObserver,
+        AutomaticKeepAliveClientMixin<T>,
+        TrackingMixin<T> {
   /// Có giữ state khi trong Tab/PageView/List hay không
   @protected
   bool get keepAlive => false;
@@ -17,6 +21,10 @@ abstract class BaseState<T extends BaseStatefulWidget> extends State<T>
   /// Placeholder hiển thị 1 lần nếu bạn cần chờ onReady() (mặc định null -> render UI ngay)
   @protected
   Widget? get placeholderWhilePreparing => null;
+
+  /// Có tự động track screen view hay không (mặc định có)
+  @protected
+  bool get autoTrackScreenView => true;
 
   @protected
   void onInitSync() {} // chạy ngay trong initState (không cần context)
@@ -82,6 +90,12 @@ abstract class BaseState<T extends BaseStatefulWidget> extends State<T>
         if (mounted && !_readyCalled) {
           _readyCalled = true;
           onReady();
+
+          // Auto track screen view if enabled
+          if (autoTrackScreenView) {
+            trackScreenView();
+          }
+
           if (!_firstBuildDone) {
             // Sau onReady có thể cần render lại lần đầu
             setState(() {});
