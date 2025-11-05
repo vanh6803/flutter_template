@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 
 class NavigationManager {
-  static final NavigationManager _instance = NavigationManager._internal();
-  factory NavigationManager() => _instance;
+  // Singleton instance
+  static final NavigationManager instance = NavigationManager._internal();
   NavigationManager._internal();
 
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   BuildContext? get context => navigatorKey.currentContext;
 
+  // --- Navigation ---
   Future<T?> navigateTo<T>(Widget screen) {
     return navigatorKey.currentState!.push<T>(
       MaterialPageRoute(builder: (_) => screen),
@@ -30,10 +31,11 @@ class NavigationManager {
   Future<T?> navigateAndClearAll<T>(Widget screen) {
     return navigatorKey.currentState!.pushAndRemoveUntil<T>(
       MaterialPageRoute(builder: (_) => screen),
-      (route) => false,
+          (route) => false,
     );
   }
 
+  // --- Dialog ---
   Future<T?> showCustomDialog<T>({
     required Widget dialog,
     bool barrierDismissible = true,
@@ -55,7 +57,7 @@ class NavigationManager {
     }
   }
 
-  // Bottom Sheet methods
+  // --- Bottom Sheet ---
   Future<T?> showBottomSheet<T>({
     required Widget content,
     bool isDismissible = true,
@@ -95,7 +97,7 @@ class NavigationManager {
     }
 
     return Scaffold.of(context!).showBottomSheet(
-      (_) => content,
+          (_) => content,
       backgroundColor: backgroundColor,
       elevation: elevation,
       shape: shape,
@@ -109,12 +111,13 @@ class NavigationManager {
     }
   }
 
+  // --- Snackbar ---
   void showMessage(
-    String message, {
-    Duration duration = const Duration(seconds: 3),
-    Color? backgroundColor,
-    SnackBarAction? action,
-  }) {
+      String message, {
+        Duration duration = const Duration(seconds: 3),
+        Color? backgroundColor,
+        SnackBarAction? action,
+      }) {
     if (context == null) return;
 
     ScaffoldMessenger.of(context!).hideCurrentSnackBar();
