@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+import 'transition_type.dart';
+import 'route_builder.dart';
 
+/// Quản lý điều hướng trong ứng dụng
+///
+/// Sử dụng pattern Singleton để đảm bảo chỉ có một instance duy nhất
+/// quản lý navigation state trong toàn bộ ứng dụng.
 class NavigationManager {
   // Singleton instance
   static final NavigationManager instance = NavigationManager._internal();
@@ -9,125 +15,168 @@ class NavigationManager {
 
   BuildContext? get context => navigatorKey.currentContext;
 
-  // --- Navigation ---
-  Future<T?> navigateTo<T>(Widget screen) {
-    return navigatorKey.currentState!.push<T>(
-      MaterialPageRoute(builder: (_) => screen),
+  // ==================== NAVIGATION ====================
+
+  /// Chuyển đến màn hình mới - giữ lại màn hình cũ trong stack
+  ///
+  /// Example:
+  /// ```dart
+  /// // Stack: [A] → navigateTo(B) → [A, B]
+  /// NavigationManager.instance.navigateTo(ScreenB());
+  ///
+  /// // Với hiệu ứng transition
+  /// NavigationManager.instance.navigateTo(
+  ///   ScreenC(),
+  ///   transition: TransitionType.slideUp,
+  /// );
+  /// ```
+  Future<T?> navigateTo<T>(
+    Widget screen, {
+    TransitionType? transition,
+    Duration duration = const Duration(milliseconds: 300),
+  }) {
+    final route = RouteBuilder.buildRoute<T>(screen, transition, duration);
+    return navigatorKey.currentState!.push<T>(route);
+  }
+
+  /// Thay thế màn hình hiện tại bằng màn hình mới
+  /// Màn hình cũ sẽ bị xóa khỏi stack
+  ///
+  /// Example:
+  /// ```dart
+  /// // Stack: [A, B, C] → navigateAndReplace(D) → [A, B, D]
+  /// NavigationManager.instance.navigateAndReplace(ScreenD());
+  ///
+  /// // Với hiệu ứng transition
+  /// NavigationManager.instance.navigateAndReplace(
+  ///   ScreenD(),
+  ///   transition: TransitionType.fade,
+  /// );
+  /// ```
+  Future<T?> navigateAndReplace<T>(
+    Widget screen, {
+    TransitionType? transition,
+    Duration duration = const Duration(milliseconds: 300),
+  }) {
+    final route = RouteBuilder.buildRoute<T>(screen, transition, duration);
+    return navigatorKey.currentState!.pushReplacement<T, Object?>(route);
+  }
+
+  /// Xóa tất cả màn hình cũ và chuyển đến màn hình mới
+  /// Thường dùng khi logout hoặc reset app
+  ///
+  /// Example:
+  /// ```dart
+  /// // Stack: [A, B, C, D] → navigateAndClearAll(Login) → [Login]
+  /// NavigationManager.instance.navigateAndClearAll(LoginScreen());
+  ///
+  /// // Với hiệu ứng transition
+  /// NavigationManager.instance.navigateAndClearAll(
+  ///   LoginScreen(),
+  ///   transition: TransitionType.fade,
+  /// );
+  /// ```
+  Future<T?> navigateAndClearAll<T>(
+    Widget screen, {
+    TransitionType? transition,
+    Duration duration = const Duration(milliseconds: 300),
+  }) {
+    final route = RouteBuilder.buildRoute<T>(screen, transition, duration);
+    return navigatorKey.currentState!.pushAndRemoveUntil<T>(
+      route,
+      (route) => false,
     );
   }
 
+  /// Chuyển màn hình mới và xóa màn hình cũ cho đến khi gặp điều kiện
+  ///
+  /// Example:
+  /// ```dart
+  /// // Stack: [A, B, C, D] → navigateAndRemoveUntil(E, isFirst) → [A, E]
+  /// NavigationManager.instance.navigateAndRemoveUntil(
+  ///   ScreenE(),
+  ///   (route) => route.isFirst, // Giữ lại màn đầu tiên
+  /// );
+  ///
+  /// // Với hiệu ứng transition
+  /// NavigationManager.instance.navigateAndRemoveUntil(
+  ///   ScreenE(),
+  ///   (route) => route.isFirst,
+  ///   transition: TransitionType.slideLeft,
+  /// );
+  /// ```
+  Future<T?> navigateAndRemoveUntil<T>(
+    Widget screen,
+    bool Function(Route<dynamic>) predicate, {
+    TransitionType? transition,
+    Duration duration = const Duration(milliseconds: 300),
+  }) {
+    final route = RouteBuilder.buildRoute<T>(screen, transition, duration);
+    return navigatorKey.currentState!.pushAndRemoveUntil<T>(route, predicate);
+  }
+
+  /// Quay lại màn hình trước đó
+  /// Có thể trả về kết quả cho màn hình trước
+  ///
+  /// Example:
+  /// ```dart
+  /// // Stack: [A, B, C, D] → goBack() → [A, B, C]
+  /// NavigationManager.instance.goBack();
+  ///
+  /// // Trả về kết quả cho màn trước
+  /// NavigationManager.instance.goBack<String>('result_data');
+  ///
+  /// // Màn trước nhận kết quả:
+  /// final result = await NavigationManager.instance.navigateTo<String>(ScreenD());
+  /// print(result); // "result_data"
+  /// ```
   void goBack<T>([T? result]) {
-    if (navigatorKey.currentState?.canPop() ?? false) {
+    if (canPop()) {
       navigatorKey.currentState!.pop<T>(result);
     }
   }
 
-  Future<T?> navigateAndReplace<T>(Widget screen) {
-    return navigatorKey.currentState!.pushReplacement<T, Object?>(
-      MaterialPageRoute(builder: (_) => screen),
-    );
+  /// Quay lại cho đến khi gặp điều kiện
+  ///
+  /// Example:
+  /// ```dart
+  /// // Stack: [A, B, C, D, E] → popUntil(isFirst) → [A]
+  /// NavigationManager.instance.popUntil((route) => route.isFirst);
+  ///
+  /// // Pop đến khi gặp route có name cụ thể
+  /// NavigationManager.instance.popUntil(
+  ///   (route) => route.settings.name == '/home',
+  /// );
+  /// ```
+  void popUntil(bool Function(Route<dynamic>) predicate) {
+    navigatorKey.currentState?.popUntil(predicate);
   }
 
-  Future<T?> navigateAndClearAll<T>(Widget screen) {
-    return navigatorKey.currentState!.pushAndRemoveUntil<T>(
-      MaterialPageRoute(builder: (_) => screen),
-          (route) => false,
-    );
-  }
-
-  // --- Dialog ---
-  Future<T?> showCustomDialog<T>({
-    required Widget dialog,
-    bool barrierDismissible = true,
-    Color? barrierColor,
-  }) {
-    if (context == null) return Future.value(null);
-
-    return showDialog<T>(
-      context: context!,
-      barrierDismissible: barrierDismissible,
-      barrierColor: barrierColor,
-      builder: (_) => dialog,
-    );
-  }
-
-  void dismissDialog([dynamic result]) {
-    if (context != null && Navigator.of(context!).canPop()) {
-      Navigator.of(context!).pop(result);
+  /// Quay về màn hình đầu tiên (root)
+  ///
+  /// Example:
+  /// ```dart
+  /// // Stack: [A, B, C, D, E] → popToRoot() → [A]
+  /// NavigationManager.instance.popToRoot();
+  /// ```
+  void popToRoot() {
+    if (navigatorKey.currentState != null) {
+      navigatorKey.currentState!.popUntil((route) => route.isFirst);
     }
   }
 
-  // --- Bottom Sheet ---
-  Future<T?> showBottomSheet<T>({
-    required Widget content,
-    bool isDismissible = true,
-    bool enableDrag = true,
-    double? elevation,
-    ShapeBorder? shape,
-    Color? backgroundColor,
-    Color? barrierColor,
-    bool isScrollControlled = false,
-    bool useRootNavigator = false,
-  }) {
-    if (context == null) return Future.value(null);
-
-    return showModalBottomSheet<T>(
-      context: context!,
-      isDismissible: isDismissible,
-      enableDrag: enableDrag,
-      elevation: elevation,
-      shape: shape,
-      backgroundColor: backgroundColor,
-      barrierColor: barrierColor,
-      isScrollControlled: isScrollControlled,
-      useRootNavigator: useRootNavigator,
-      builder: (_) => content,
-    );
-  }
-
-  PersistentBottomSheetController showPersistentBottomSheet({
-    required Widget content,
-    Color? backgroundColor,
-    double? elevation,
-    ShapeBorder? shape,
-    Clip? clipBehavior,
-  }) {
-    if (context == null) {
-      throw Exception('Context is null, cannot show persistent bottom sheet');
-    }
-
-    return Scaffold.of(context!).showBottomSheet(
-          (_) => content,
-      backgroundColor: backgroundColor,
-      elevation: elevation,
-      shape: shape,
-      clipBehavior: clipBehavior,
-    );
-  }
-
-  void dismissBottomSheet([dynamic result]) {
-    if (context != null && Navigator.of(context!).canPop()) {
-      Navigator.of(context!).pop(result);
-    }
-  }
-
-  // --- Snackbar ---
-  void showMessage(
-      String message, {
-        Duration duration = const Duration(seconds: 3),
-        Color? backgroundColor,
-        SnackBarAction? action,
-      }) {
-    if (context == null) return;
-
-    ScaffoldMessenger.of(context!).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context!).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: duration,
-        backgroundColor: backgroundColor,
-        action: action,
-      ),
-    );
+  /// Kiểm tra có thể quay lại màn hình trước không
+  ///
+  /// Example:
+  /// ```dart
+  /// // Stack: [A, B, C] → canPop() = true
+  /// // Stack: [A] → canPop() = false
+  ///
+  /// if (NavigationManager.instance.canPop()) {
+  ///   NavigationManager.instance.goBack();
+  /// }
+  /// ```
+  bool canPop() {
+    return navigatorKey.currentState?.canPop() ?? false;
   }
 }
