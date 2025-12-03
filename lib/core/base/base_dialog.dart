@@ -41,6 +41,14 @@ abstract class BaseDialog<T> {
     return FadeTransition(opacity: a1, child: child);
   }
 
+  // Custom transition builder cho blur - chỉ animate content, không animate blur
+  Widget _blurTransitionBuilder(BuildContext c, Animation<double> a1, Animation<double> a2, Widget content) {
+    return FadeTransition(
+      opacity: a1,
+      child: content,
+    );
+  }
+
   Future<T?> show({BuildContext? context, GlobalKey<NavigatorState>? navigatorKey}) async {
     if (_isShowing) return _completer?.future;
     _isShowing = true;
@@ -64,22 +72,29 @@ abstract class BaseDialog<T> {
         useRootNavigator: useRootNavigator,
         routeSettings: routeSettings,
         transitionDuration: transitionDuration,
-        transitionBuilder: (c, a1, a2, child) => transitionBuilder(c, a1, a2, child),
-        pageBuilder: (_, __, ___) {
+        transitionBuilder: (c, a1, a2, child) {
+          // Khi có blur, child đã bao gồm animation rồi, không cần wrap thêm
+          return hasBlur ? child : transitionBuilder(c, a1, a2, child);
+        },
+        pageBuilder: (c, a1, a2) {
           final content = build(ctx);
 
           final overlay = hasBlur
               ? Stack(
             children: [
+              // BackdropFilter xuất hiện ngay, không animate
               Positioned.fill(
-                child: BackdropFilter(
-                  filter: ui.ImageFilter.blur(
-                    sigmaX: barrierBlurSigma!,
-                    sigmaY: barrierBlurSigma!,
+                child: RepaintBoundary(
+                  child: BackdropFilter(
+                    filter: ui.ImageFilter.blur(
+                      sigmaX: barrierBlurSigma!,
+                      sigmaY: barrierBlurSigma!,
+                    ),
+                    child: Container(color: barrierColor),
                   ),
-                  child: Container(color: barrierColor),
                 ),
               ),
+              // ModalBarrier xuất hiện ngay, không animate
               Positioned.fill(
                 child: ModalBarrier(
                   dismissible: barrierDismissible,
@@ -88,8 +103,8 @@ abstract class BaseDialog<T> {
                   barrierSemanticsDismissible: barrierDismissible,
                 ),
               ),
-              // Nội dung dialog
-              content,
+              // Chỉ animate content
+              _blurTransitionBuilder(c, a1, a2, content),
             ],
           )
               : content;

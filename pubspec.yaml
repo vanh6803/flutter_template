@@ -45,7 +45,7 @@ flutter:
   generate: true
   assets:
     - assets/images/
-    - assets/icons/
+    - assets/icons/language/
     - assets/anim/
     - assets/fonts/
 
@@ -60,3 +60,6 @@ flutter_gen:
   fonts:
     outputs:
       class_name: FontFamily
+
+flutter_intl:
+  enabled: true
