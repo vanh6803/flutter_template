@@ -93,6 +93,12 @@ abstract class AppLocalizations {
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[Locale('en')];
+
+  /// No description provided for @just_waiting_a_few_seconds.
+  ///
+  /// In en, this message translates to:
+  /// **'Just waiting a few seconds...'**
+  String get just_waiting_a_few_seconds;
 }
 
 class _AppLocalizationsDelegate

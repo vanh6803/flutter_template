@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_template/core/enums/language_enum.dart';
 import 'package:flutter_template/gen/assets.gen.dart';
 
-extension LanguageExt on LanguageEnum {
+extension LanguageExtention on LanguageEnum {
   String get displayName {
     switch (this) {
       case LanguageEnum.en:

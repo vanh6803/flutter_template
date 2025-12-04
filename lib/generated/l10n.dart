@@ -53,6 +53,16 @@ class S {
   static S? maybeOf(BuildContext context) {
     return Localizations.of<S>(context, S);
   }
+
+  /// `Just waiting a few seconds...`
+  String get just_waiting_a_few_seconds {
+    return Intl.message(
+      'Just waiting a few seconds...',
+      name: 'just_waiting_a_few_seconds',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
