@@ -10,4 +10,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get just_waiting_a_few_seconds => 'Just waiting a few seconds...';
+
+  @override
+  String get done => 'Done';
 }

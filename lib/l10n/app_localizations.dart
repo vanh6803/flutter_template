@@ -99,6 +99,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Just waiting a few seconds...'**
   String get just_waiting_a_few_seconds;
+
+  /// No description provided for @done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get done;
 }
 
 class _AppLocalizationsDelegate

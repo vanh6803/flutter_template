@@ -26,7 +26,6 @@ void main() async {
           appState?.updateDependencies(ads, purchase);
           return appState ?? AppViewModel(ads, purchase);
         },
-        lazy: false,
       ),
     ],
     child: const MyApplication(),

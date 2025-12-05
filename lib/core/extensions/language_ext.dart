@@ -44,10 +44,6 @@ extension LanguageExtention on LanguageEnum {
         return Assets.icons.language.hindi.svg(
             width: 32, height: 32
         );
-      default:
-        return Assets.icons.language.unitedStates.svg(
-            width: 32, height: 32
-        );
     }
   }
 

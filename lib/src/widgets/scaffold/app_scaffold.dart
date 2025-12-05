@@ -1,4 +1,6 @@
+import 'package:ads_tracking_plugin/ads_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_template/core/utils/app_size.dart';
 
 class AppScaffold extends StatelessWidget {
   final Widget? body;
@@ -24,7 +26,6 @@ class AppScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     return Stack(
       children: [
         DecoratedBox(
@@ -44,28 +45,28 @@ class AppScaffold extends StatelessWidget {
           ),
         ),
         // Listen to app open ad loading state
-        // ValueListenableBuilder<bool>(
-        //   valueListenable: AdsManager.instance.isAppOpenAdLoadingNotifier,
-        //   builder: (context, isLoading, child) {
-        //     print("AppScaffold: isAppOpenAdLoading = $isLoading");
-        //     if (!isLoading) return const SizedBox.shrink();
-        //
-        //     return Container(
-        //       width: size.width,
-        //       height: size.height,
-        //       color: Colors.white,
-        //       child: const Column(
-        //         mainAxisAlignment: MainAxisAlignment.center,
-        //         crossAxisAlignment: CrossAxisAlignment.center,
-        //         children: [
-        //           CircularProgressIndicator.adaptive(),
-        //           SizedBox(height: 16),
-        //           Text("Welcome back!"),
-        //         ],
-        //       ),
-        //     );
-        //   },
-        // ),
+        ValueListenableBuilder<bool>(
+          valueListenable: AdsManager.instance.isAppOpenAdLoadingNotifier,
+          builder: (context, isLoading, child) {
+            print("AppScaffold: isAppOpenAdLoading = $isLoading");
+            if (!isLoading) return const SizedBox.shrink();
+
+            return Container(
+              width: AppSize.instance.width,
+              height: AppSize.instance.height,
+              color: Colors.white,
+              child: const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator.adaptive(),
+                  SizedBox(height: 16),
+                  Text("Welcome back!"),
+                ],
+              ),
+            );
+          },
+        ),
       ],
     );
   }

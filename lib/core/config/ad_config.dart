@@ -48,6 +48,7 @@ class AdName {
   static const String interHomeAd = "inter_home";
 
   static const String nativeLanguageAd = "native_language";
+  static const String nativeLanguageClickAd = "native_language_click";
   static const String nativeOnboardingPage1Ad = "native_onboarding_page_1";
   static const String nativeOnboardingPage4Ad = "native_onboarding_page_4";
 
@@ -71,6 +72,18 @@ List<AdConfiguration> getAdConfigurations() {
     AdConfiguration(
       adUnit: AdUnit(defaultId: AdUnitId.nativeLanguageAdUnitId),
       name: AdName.nativeLanguageAd,
+      format: AdFormat.native,
+      nativeFactoryId: NativeFactoryId.layoutAdLarge,
+      nativeCustomOptions: NativeCustomOptions(
+        textColor: textColor,
+        ctaColor: ctaColor,
+        ctaCornerRadius: ctaCornerRadius,
+        ctaHeight: ctaHeight,
+      ),
+    ),
+    AdConfiguration(
+      adUnit: AdUnit(defaultId: AdUnitId.nativeLanguageAdUnitId),
+      name: AdName.nativeLanguageClickAd,
       format: AdFormat.native,
       nativeFactoryId: NativeFactoryId.layoutAdLarge,
       nativeCustomOptions: NativeCustomOptions(
