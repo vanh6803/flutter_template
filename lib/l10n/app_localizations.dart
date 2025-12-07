@@ -105,6 +105,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Done'**
   String get done;
+
+  /// No description provided for @applyingLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Applying language...'**
+  String get applyingLanguage;
 }
 
 class _AppLocalizationsDelegate

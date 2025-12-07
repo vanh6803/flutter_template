@@ -7,6 +7,7 @@ import 'package:flutter_template/core/constants/app_spacing.dart';
 import 'package:flutter_template/core/enums/language_enum.dart';
 import 'package:flutter_template/core/extensions/language_ext.dart';
 import 'package:flutter_template/core/navigation/navigation_manager.dart';
+import 'package:flutter_template/core/navigation/transition_type.dart';
 import 'package:flutter_template/core/theme/app_colors.dart';
 import 'package:flutter_template/core/theme/app_typography.dart';
 import 'package:flutter_template/core/utils/locator_support.dart';
@@ -66,7 +67,7 @@ class _LanguageScreenState extends BaseState<LanguageScreen> {
             InkWell(
               onTap: () {
                 context.read<LanguageViewModel>().saveLanguage();
-                NavigationManager.instance.navigateTo(OnboardingScreen());
+                NavigationManager.instance.navigateTo(OnboardingScreen(), transition: TransitionType.fade, duration: Duration.zero);
               },
               borderRadius: BorderRadius.circular(12),
               child: Ink(

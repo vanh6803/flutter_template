@@ -68,6 +68,16 @@ class S {
   String get done {
     return Intl.message('Done', name: 'done', desc: '', args: []);
   }
+
+  /// `Applying language...`
+  String get applyingLanguage {
+    return Intl.message(
+      'Applying language...',
+      name: 'applyingLanguage',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

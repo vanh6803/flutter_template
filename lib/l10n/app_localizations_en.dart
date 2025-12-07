@@ -13,4 +13,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get done => 'Done';
+
+  @override
+  String get applyingLanguage => 'Applying language...';
 }
